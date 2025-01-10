@@ -1,0 +1,8 @@
+{
+    "name": "plugin SDK",
+    "version": "0.0.1",
+    "id": "6ddf86cb-013b-4545-9ff0-854ca396ee6e",
+    "description": "Ardeck Plugin SDK",
+    "author": "project-ardeck",
+    "main": "main.exe"
+}

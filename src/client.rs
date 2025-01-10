@@ -4,13 +4,8 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 pub mod env_args;
 pub mod websocket;
 
-// enum OPS {
-//     Hello
-// }
-
-#[derive(Serialize_repr, Deserialize_repr, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[repr(i32)]
 pub enum PluginOp {
     Hello,
     Success,
@@ -18,30 +13,53 @@ pub enum PluginOp {
     Action,
 }
 
+#[derive(Clone, Deserialize, Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SwitchInfo {
+    pub switch_type: SwitchType, // -1: Unknown, 0: Digital, 1: Analog
+    pub switch_id: SwitchId,
+    pub switch_state: u16,
+    pub timestamp: i64,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase", tag = "op", content = "data")]
+#[serde(rename_all = "camelCase")]
+pub struct ActionTarget {
+    pub plugin_id: String,
+    pub action_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Action {
+    switch: SwitchInfo,
+    target: ActionTarget,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase", tag = "op", content = "data")] // TODO: opが数字でなく文字列で変換されてしまう問題
 pub enum PluginMessageData {
+    #[serde(rename = "0")]
     Hello {
         // OP0: Hello
         plugin_version: String,
         ardeck_plugin_web_socket_version: String,
         plugin_id: String,
     },
+    #[serde(rename = "1")]
     Success {
         // OP1: Success
         ardeck_studio_version: String,
         ardeck_studio_web_socket_version: String,
     },
+    #[serde(rename = "2")]
     Message {
         // OP2: Message
         message_id: String,
         message: String,
     },
-    Action {
-        // OP3: Action
-        action_id: String,
-        action_data: ActionMap,
-    },
+    #[serde(rename = "3")]
+    Action(Action),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
