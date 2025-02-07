@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use plugin_lib::ardeck_plugin::ArdeckPlugin;
+use lib_plugin::ardeck_plugin::ArdeckPlugin;
 
 #[tokio::main]
 async fn main() {

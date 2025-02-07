@@ -1,9 +1,8 @@
 [package]
 authors = ["project-ardeck"]
 name = "ardeck-plugin-sdk-rs"
-version = "0.0.1"
+version = "0.0.1-alpha"
 edition = "2021"
-license = "GPL-3.0-only"
 
 [workspace]
 members = ["lib", "plugin"]
@@ -11,3 +10,7 @@ members = ["lib", "plugin"]
 [[bin]]
 name = "plugin"
 path = "plugin/src/main.rs"
+
+[dependencies]
+lib_plugin = { path = "lib" }
+tokio = { version = "1.42.0", features = ["full"] }

@@ -209,6 +209,7 @@ impl ArdeckPlugin {
         println!("${:?}", &serde_json::to_string(&data).unwrap());
     }
 
+    /// ardeck-studioとの通信を開始します
     pub async fn start_listening(&mut self) {
         self.state = WebsocketState::Connecting;
         self.send_hello().await;

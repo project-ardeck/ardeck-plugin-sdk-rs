@@ -29,6 +29,7 @@ pub enum PluginOp {
     Action,
 }
 
+/// スイッチの情報
 #[derive(Clone, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SwitchInfo {
@@ -52,6 +53,26 @@ pub struct Action {
     target: ActionTarget,
 }
 
+/// プラグインとardeck-studioのメッセージのやり取りの段階と、そのデータ
+/// # Op0: Hello
+/// プラグインがardeck-studioに接続した際に送信するメッセージです
+/// プラグインと専用のプロトコルのバージョン情報、プラグインのIDを含んでいます。
+/// 
+/// # Op1: Success
+/// ardeck-studioとの接続を確立したことを表します。
+/// ardeck-studioとのプロトコルのバージョン情報を含んでいます。
+/// 
+/// # Op2: Message
+/// メッセージを送信する場合に使用します。
+/// メッセージのIDとメッセージを含んでいます。
+/// ## message_id
+/// - `log`: 実行ログ
+/// - `error`: エラーログ
+/// 
+/// # Op3: Action
+/// アクションを送信する場合に使用します。
+/// アクションの情報を含んでいます。
+/// 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase", tag = "op", content = "data")] // TODO: opが数字でなく文字列で変換されてしまう問題
 pub enum PluginMessage {
@@ -78,6 +99,9 @@ pub enum PluginMessage {
     Action(Action),
 }
 
+/// スイッチの種類
+/// -1: Unknown, 0: Digital, 1: Analog
+/// 仕様上、プラグインにSwitchTypeがUnknownのデータは送信されないため、未実装
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum SwitchType {
