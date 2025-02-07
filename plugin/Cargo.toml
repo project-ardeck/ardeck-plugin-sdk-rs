@@ -1,0 +1,8 @@
+[package]
+name = "ardeck-plugin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+plugin-lib = { path = "../lib" }
+tokio = { version = "1.42.0", features = ["full"] }

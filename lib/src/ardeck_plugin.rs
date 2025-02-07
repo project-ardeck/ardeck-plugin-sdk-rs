@@ -1,4 +1,4 @@
-use std::{ascii, env, fs::File, sync::Arc};
+use std::{env, sync::Arc};
 
 use futures_util::{SinkExt, StreamExt};
 use tokio::sync::Mutex;
@@ -6,8 +6,6 @@ use tokio_tungstenite::{
     connect_async,
     tungstenite::{Message, Utf8Bytes},
 };
-
-use crate::client::manifest::Manifest;
 
 use super::{Action, PluginMessage, PluginMessageContainer, PluginOp};
 
@@ -108,7 +106,6 @@ impl ArdeckPlugin {
                             );
 
                             let action_id = action.clone().target.action_id;
-                            // TODO: イベントハンドラー用のActionの構造を作る
                             self.action_handler_emit_all(
                                 action_id,
                                 action,

@@ -1,13 +1,13 @@
 [package]
+authors = ["project-ardeck"]
 name = "ardeck-plugin-sdk-rs"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 
-[dependencies]
-tokio = { version = "1.42.0", features = ["full"] }
-tokio-tungstenite = "*"
-tokio-stream = "0.1.17"
-futures-util = "0.3.31"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_repr = "0.1.19"
+[workspace]
+members = ["lib", "plugin"]
+
+[[bin]]
+name = "plugin"
+path = "plugin/src/main.rs"
+
