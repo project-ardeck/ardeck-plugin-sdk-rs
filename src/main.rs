@@ -1,27 +1,17 @@
-use std::env;
-
-use futures_util::SinkExt;
-use tokio_stream::StreamExt;
-use tokio_tungstenite::{connect_async, tungstenite::{Message, Utf8Bytes}};
-
 mod client;
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
-    let env: Vec<String> = env::args().collect();
-    println!("env: {env:?}");
-    let port = env[1].clone();
-    
-    let mut ws = client::websocket::Websocket::new(&port).await;
+    let mut plugin = client::ardeck_plugin::ArdeckPlugin::new().await;
 
-    ws.add_event_handler("hello", |msg| {
-        println!("Hello!: {:?}", msg);
+    // TODO: event handlerをactionとmessageに分ける
+    plugin.add_action_handler("hello", |msg| {
+        println!("Hello! plugin: {:?}", msg);
     }).await;
 
-    ws.add_event_handler("ping", |msg| {
-        println!("pong");
+    plugin.add_action_handler("ping", |msg| {
+        println!("pong from plugin");
     }).await;
 
-    ws.start_listening().await;
+    plugin.start_listening().await;
 }

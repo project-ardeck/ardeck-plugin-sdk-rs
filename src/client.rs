@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 pub mod env_args;
-pub mod websocket;
+pub mod ardeck_plugin;
+pub mod manifest;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -38,7 +39,7 @@ pub struct Action {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase", tag = "op", content = "data")] // TODO: opが数字でなく文字列で変換されてしまう問題
-pub enum PluginMessageData {
+pub enum PluginMessage {
     #[serde(rename = "0")]
     Hello {
         // OP0: Hello
@@ -82,7 +83,7 @@ pub struct ActionMap {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct PluginMessage {
+pub struct PluginMessageContainer {
     pub op: PluginOp,
-    pub data: PluginMessageData,
+    pub data: PluginMessage,
 }
