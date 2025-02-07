@@ -3,7 +3,7 @@ authors = ["project-ardeck"]
 name = "ardeck-plugin-sdk-rs"
 version = "0.0.1"
 edition = "2021"
-license = "LGPL-3.0-only"
+license = "GPL-3.0-only"
 
 [workspace]
 members = ["lib", "plugin"]
