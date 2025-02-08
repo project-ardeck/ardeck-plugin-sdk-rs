@@ -57,22 +57,22 @@ pub struct Action {
 /// # Op0: Hello
 /// プラグインがardeck-studioに接続した際に送信するメッセージです
 /// プラグインと専用のプロトコルのバージョン情報、プラグインのIDを含んでいます。
-/// 
+///
 /// # Op1: Success
 /// ardeck-studioとの接続を確立したことを表します。
 /// ardeck-studioとのプロトコルのバージョン情報を含んでいます。
-/// 
+///
 /// # Op2: Message
 /// メッセージを送信する場合に使用します。
 /// メッセージのIDとメッセージを含んでいます。
 /// ## message_id
 /// - `log`: 実行ログ
 /// - `error`: エラーログ
-/// 
+///
 /// # Op3: Action
 /// アクションを送信する場合に使用します。
 /// アクションの情報を含んでいます。
-/// 
+///
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase", tag = "op", content = "data")] // TODO: opが数字でなく文字列で変換されてしまう問題
 pub enum PluginMessage {

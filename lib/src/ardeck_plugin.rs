@@ -24,6 +24,8 @@ use tokio_tungstenite::{
     tungstenite::{Message, Utf8Bytes},
 };
 
+use crate::manifest::Manifest;
+
 use super::{Action, PluginMessage, PluginMessageContainer, PluginOp};
 
 pub enum WebsocketState {
@@ -61,8 +63,6 @@ impl ArdeckPlugin {
 
         let stream = Self::connect(&port).await;
 
-        tokio::spawn(async move {});
-
         ArdeckPlugin {
             state: WebsocketState::None,
             stream,
@@ -72,14 +72,9 @@ impl ArdeckPlugin {
     }
 
     async fn connect(port: &str) -> WebSocket {
-        println!("connecting to ws://127.0.0.1:{port}");
-        // let (ws, _) = tokio_tungstenite::connect_async(format!("ws://127.0.0.1:{port}")).await.unwrap();
-        let (mut ws_stream, _) = connect_async(format!("ws://127.0.0.1:{port}"))
+        println!("connecting to ws://127.0.0.1:{port}");        let (ws_stream, _) = connect_async(format!("ws://127.0.0.1:{port}"))
             .await
             .unwrap();
-
-        // let (mut sink, stream) = ws_stream.split();
-
         ws_stream
     }
 
@@ -158,15 +153,22 @@ impl ArdeckPlugin {
             .push((event_id, Box::new(handler)));
     }
 
+    /// Ardeck studio からメッセージを受信したときに実行される動作を記述します。
+    /// # Example
+    /// ```
+    /// plugin.add_message_handler("log" /* "log" or "error" */, |message| {
+    ///     ...
+    /// }).await;
+    /// ```
     pub async fn add_message_handler<F: Fn(PluginMessage) + 'static>(
         &mut self,
-        event_id: &'static str,
+        message_id: &'static str,
         handler: F,
     ) {
         self.message_handler
             .lock()
             .await
-            .push((event_id, Box::new(handler)));
+            .push((message_id, Box::new(handler)));
     }
 
     async fn action_handler_emit_all(&mut self, event_id: String, data: Action) {
@@ -192,17 +194,12 @@ impl ArdeckPlugin {
     }
 
     async fn send_hello(&mut self) {
-        // // TODO: manifestとactionsを読み込む関数を別にする
-        // let str = String::new();
-        // let manifest_file = File::open("manifest.json").unwrap();
-        // let reader = std::io::BufReader::new(manifest_file);
-        // let manifest: Manifest = serde_json::from_reader(reader).unwrap();
-        
+        let manifest = Manifest::get().await;
 
         let data = PluginMessage::Hello {
             ardeck_plugin_web_socket_version: String::from("0.0.1"),
-            plugin_id: String::from("6ddf86cb-013b-4545-9ff0-854ca396ee6e"),
-            plugin_version: String::from("0.0.1"),
+            plugin_id: manifest.id,
+            plugin_version: manifest.version,
         };
 
         self.send(&serde_json::to_string(&data).unwrap()).await;

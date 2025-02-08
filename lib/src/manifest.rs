@@ -16,6 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 use serde::{Deserialize, Serialize};
+use tokio::fs::read_to_string;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Manifest {
@@ -25,4 +26,22 @@ pub struct Manifest {
     pub description: Option<String>,
     pub author: Option<String>,
     pub main: String,
+}
+
+impl Manifest {
+    /// マニフェストファイルの読み込みと解析を行います
+    /// # Example
+    /// ```
+    /// let manifest = Manifest::get().await;
+    /// println!("plugin id: {}", manifest.id);
+    /// ```
+    pub async fn get() -> Manifest {
+        let manifest_path = std::env::current_exe()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("manifest.json");
+        let manifest_str = read_to_string(manifest_path).await.unwrap();
+        serde_json::from_str(&manifest_str).unwrap()
+    }
 }
