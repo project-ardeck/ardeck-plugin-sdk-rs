@@ -24,7 +24,7 @@ use tokio_tungstenite::{
     tungstenite::{Message, Utf8Bytes},
 };
 
-use crate::manifest::Manifest;
+use crate::{logger::init_logger, manifest::Manifest};
 
 use super::{Action, PluginMessage, PluginMessageContainer, PluginOp};
 
@@ -44,7 +44,7 @@ type WebSocketEventHandler<T> = Arc<Mutex<Vec<(&'static str, Box<dyn Fn(T) + 'st
 /// # Example
 /// ```
 /// let mut plugin = ArdeckPlugin::new().await;
-/// 
+///
 /// plugin.add_action_handler("hello", |action| {
 ///     println!("Hello Ardeck!");
 /// }).await;
@@ -58,6 +58,8 @@ pub struct ArdeckPlugin {
 
 impl ArdeckPlugin {
     pub async fn new() -> Self {
+        init_logger().await;
+
         let env: Vec<String> = env::args().collect();
         let port = env[1].clone();
 
@@ -72,7 +74,8 @@ impl ArdeckPlugin {
     }
 
     async fn connect(port: &str) -> WebSocket {
-        println!("connecting to ws://127.0.0.1:{port}");        let (ws_stream, _) = connect_async(format!("ws://127.0.0.1:{port}"))
+        log::trace!("connecting to ws://127.0.0.1:{port}");
+        let (ws_stream, _) = connect_async(format!("ws://127.0.0.1:{port}"))
             .await
             .unwrap();
         ws_stream
@@ -89,7 +92,7 @@ impl ArdeckPlugin {
         while let Some(msg) = self.stream.next().await {
             match msg {
                 Ok(Message::Text(msg)) => {
-                    println!("msg: {:?}", msg);
+                    log::trace!("message: {msg}");
                     let msg: PluginMessage = serde_json::from_str(&msg).unwrap();
                     match msg {
                         // PluginMessageData::Hello { plugin_version, ardeck_plugin_web_socket_version, plugin_id } => {
@@ -101,28 +104,25 @@ impl ArdeckPlugin {
                         } => {
                             self.state = WebsocketState::Connected;
 
-                            println!("[success]:\n\tardeck-studio-version: {ardeck_studio_version}\n\tardeck-studio-web-socket-version: {ardeck_studio_web_socket_version}");
+                            log::info!(
+                                "Success: \n\tardeck-studio-version: {ardeck_studio_version}\n\tardeck-studio-web-socket-version: {ardeck_studio_web_socket_version}"
+                            );
                         }
                         PluginMessage::Message {
                             message_id,
                             message,
                         } => {
-                            println!(
-                                "[message]:\n\tmessage-id: {message_id}\n\tmessage: {message}"
-                            );
+                            log::trace!("message");
                         }
                         PluginMessage::Action(action) => {
-                            println!(
+                            log::trace!(
                                 "[action]:\n\taction-id: {}\n\taction-data: {:?}",
-                                &action.target.action_id, &action.switch
+                                &action.target.action_id,
+                                &action.switch
                             );
 
                             let action_id = action.clone().target.action_id;
-                            self.action_handler_emit_all(
-                                action_id,
-                                action,
-                            )
-                            .await;
+                            self.action_handler_emit_all(action_id, action).await;
                         }
                         _ => {}
                     }
@@ -172,25 +172,23 @@ impl ArdeckPlugin {
     }
 
     async fn action_handler_emit_all(&mut self, event_id: String, data: Action) {
-        println!("# event_handler_emit_all[request: {}]", event_id);
+        log::trace!("# event_handler_emit_all[request: {}]", event_id);
         for handler in self.action_handler.lock().await.iter() {
-            println!("\thandler: {}", handler.0);
+            log::trace!("\thandler: {}", handler.0);
             if handler.0 == event_id {
                 handler.1(data.clone());
             }
         }
-        println!();
     }
 
     async fn message_handler_emit_all(&mut self, event_id: String, data: PluginMessage) {
-        println!("# message_handler_emit_all[request: {}]", event_id);
+        log::trace!("# message_handler_emit_all[request: {}]", event_id);
         for handler in self.message_handler.lock().await.iter() {
-            println!("\thandler: {}", handler.0);
+            log::trace!("\thandler: {}", handler.0);
             if handler.0 == event_id {
                 handler.1(data.clone());
             }
         }
-        println!();
     }
 
     async fn send_hello(&mut self) {
@@ -203,7 +201,6 @@ impl ArdeckPlugin {
         };
 
         self.send(&serde_json::to_string(&data).unwrap()).await;
-        println!("${:?}", &serde_json::to_string(&data).unwrap());
     }
 
     /// ardeck-studioとの通信を開始します
