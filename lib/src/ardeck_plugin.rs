@@ -60,6 +60,8 @@ impl ArdeckPlugin {
     pub async fn new() -> Self {
         init_logger().await;
 
+        log::info!("starting ardeck-plugin\n\tversion: {}", env!("CARGO_PKG_VERSION"));
+
         let env: Vec<String> = env::args().collect();
         let port = env[1].clone();
 
@@ -112,7 +114,7 @@ impl ArdeckPlugin {
                             message_id,
                             message,
                         } => {
-                            log::trace!("message");
+                            log::info!("Message: {message_id} {message}");
                         }
                         PluginMessage::Action(action) => {
                             log::trace!(
@@ -160,7 +162,7 @@ impl ArdeckPlugin {
     ///     ...
     /// }).await;
     /// ```
-    pub async fn add_message_handler<F: Fn(PluginMessage) + 'static>(
+    /*pub*/ async fn add_message_handler<F: Fn(PluginMessage) + 'static>(
         &mut self,
         message_id: &'static str,
         handler: F,
