@@ -61,5 +61,11 @@ Copyright (C) 1999 Jon Doe
 ```
 執筆中...
 
+# ビルド
+plugin ディレクトリ内にある`build.bat` を実行します。
+```shell
+.\build.bat
+```
+
 # ライセンス
 当プロジェクトは GPL-3.0 ライセンスに基づいて付与されています。
