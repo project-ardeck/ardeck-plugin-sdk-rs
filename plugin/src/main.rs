@@ -22,7 +22,7 @@ async fn main() {
     let mut plugin = ArdeckPlugin::new().await;
 
     plugin
-        .add_action_handler("hello", |action| {
+        .add_action_handler("hello", |switch_info| {
             println!("Hello Ardeck!");
         })
         .await;

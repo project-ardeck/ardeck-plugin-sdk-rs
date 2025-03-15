@@ -24,7 +24,7 @@ use tokio_tungstenite::{
     tungstenite::{Message, Utf8Bytes},
 };
 
-use crate::{logger::init_logger, manifest::Manifest};
+use crate::{logger::init_logger, manifest::Manifest, SwitchInfo};
 
 use super::{Action, PluginMessage, PluginMessageContainer, PluginOp};
 
@@ -39,7 +39,7 @@ pub enum WebsocketState {
 
 type WebSocket =
     tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>;
-type WebSocketEventHandler<T> = Arc<Mutex<Vec<(&'static str, Box<dyn Fn(T) + 'static>)>>>;
+type WebSocketEventHandler<T> = Vec<(&'static str, Box<dyn Fn(T) + 'static>)>;
 
 /// # Example
 /// ```
@@ -52,7 +52,7 @@ type WebSocketEventHandler<T> = Arc<Mutex<Vec<(&'static str, Box<dyn Fn(T) + 'st
 pub struct ArdeckPlugin {
     state: WebsocketState,
     stream: WebSocket,
-    action_handler: WebSocketEventHandler<Action>,
+    action_handler: WebSocketEventHandler<SwitchInfo>,
     message_handler: WebSocketEventHandler<PluginMessage>,
 }
 
@@ -70,8 +70,8 @@ impl ArdeckPlugin {
         ArdeckPlugin {
             state: WebsocketState::None,
             stream,
-            action_handler: Arc::new(Mutex::new(Vec::new())),
-            message_handler: Arc::new(Mutex::new(Vec::new())),
+            action_handler: Vec::new(),
+            message_handler: Vec::new(),
         }
     }
 
@@ -124,7 +124,7 @@ impl ArdeckPlugin {
                             );
 
                             let action_id = action.clone().target.action_id;
-                            self.action_handler_emit_all(action_id, action).await;
+                            self.action_handler_emit_all(action_id, action.switch).await;
                         }
                         _ => {}
                     }
@@ -144,14 +144,14 @@ impl ArdeckPlugin {
     ///     ...
     /// }).await;
     /// ```
-    pub async fn add_action_handler<F: Fn(Action) + 'static>(
+    pub async fn add_action_handler<F: Fn(SwitchInfo) + 'static>(
         &mut self,
         event_id: &'static str,
         handler: F,
     ) {
         self.action_handler
-            .lock()
-            .await
+            // .lock()
+            // .await
             .push((event_id, Box::new(handler)));
     }
 
@@ -168,14 +168,14 @@ impl ArdeckPlugin {
         handler: F,
     ) {
         self.message_handler
-            .lock()
-            .await
+            // .lock()
+            // .await
             .push((message_id, Box::new(handler)));
     }
 
-    async fn action_handler_emit_all(&mut self, event_id: String, data: Action) {
+    async fn action_handler_emit_all(&mut self, event_id: String, data: SwitchInfo) {
         log::debug!("# event_handler_emit_all[request: {}]", event_id);
-        for handler in self.action_handler.lock().await.iter() {
+        for handler in self.action_handler.iter() {
             log::debug!("\thandler: {}", handler.0);
             if handler.0 == event_id {
                 handler.1(data.clone());
@@ -185,7 +185,7 @@ impl ArdeckPlugin {
 
     async fn message_handler_emit_all(&mut self, event_id: String, data: PluginMessage) {
         log::debug!("# message_handler_emit_all[request: {}]", event_id);
-        for handler in self.message_handler.lock().await.iter() {
+        for handler in self.message_handler.iter() {
             log::debug!("\thandler: {}", handler.0);
             if handler.0 == event_id {
                 handler.1(data.clone());

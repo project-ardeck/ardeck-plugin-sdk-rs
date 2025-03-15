@@ -31,7 +31,13 @@ pub enum PluginOp {
     Action,
 }
 
-/// スイッチの情報
+
+/// # SwitchInfo
+/// Ardeck(Arduino)のスイッチに関する情報
+/// - switch_type: スイッチの種類
+/// - switch_id: スイッチのピン番号
+/// - switch_state: スイッチの状態
+/// - timestamp: スイッチの状態変化のタイムスタンプ
 #[derive(Clone, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SwitchInfo {
@@ -41,6 +47,10 @@ pub struct SwitchInfo {
     pub timestamp: i64,
 }
 
+/// # ActionTarget
+/// Ardeck Studioで設定された、スイッチに対応するアクションの情報
+/// - plugin_id: プラグインのID
+/// - action_id: アクションのID
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ActionTarget {
@@ -48,6 +58,7 @@ pub struct ActionTarget {
     pub action_id: String,
 }
 
+/// Ardeck Studioから送られるアクションの情報
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Action {

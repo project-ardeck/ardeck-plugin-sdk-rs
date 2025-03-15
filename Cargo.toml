@@ -1,7 +1,7 @@
 [package]
 authors = ["project-ardeck"]
 name = "ardeck-plugin-sdk-rs"
-version = "0.0.1-alpha"
+version = "0.1.0"
 edition = "2021"
 
 [workspace]
