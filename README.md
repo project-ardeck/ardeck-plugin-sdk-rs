@@ -53,13 +53,40 @@ plugin/
 Copyright (C) <year> <name of author>
 ...
 ```
-### 例
+例:
 ```rust
 /*
 Copyright (C) 1999 Jon Doe
 ...
 ```
-執筆中...
+
+### 記述
+コードは以下のように記述します。
+```rust 
+use lib_plugin::ardeck_plugin::ArdeckPlugin;
+
+#[tokio::main]
+async fn main() {
+    // 初期化
+    let mut plugin = ArdeckPlugin::new().await;
+
+    // ここにアクションが起こった時に実行する処理を記述
+    // ...
+
+    // アクションの受信を開始
+    plugin.start_listening().await;
+}
+```
+
+`add_action_handler`を用いてアクションが起こった時に実行する処理を記述します。
+先ほどの例では、`action.json`に`hello`というアクションを記述しました。この場合、以下のように記述します。
+```rust
+plugin.add_action_handler("hello", |switch_info| {
+    println!("Hello Ardeck!");
+});
+```
+
+すべてのハンドラーを登録し、プラグインの動作に必要な処理のあと、一番最後に`start_listening()`を呼び出して、Ardeck Studioからのデータの受信を待機します。
 
 # ビルド
 plugin ディレクトリ内にある`build.bat` を実行します。

@@ -21,11 +21,9 @@ use lib_plugin::ardeck_plugin::ArdeckPlugin;
 async fn main() {
     let mut plugin = ArdeckPlugin::new().await;
 
-    plugin
-        .add_action_handler("hello", |switch_info| {
-            println!("Hello Ardeck!");
-        })
-        .await;
+    plugin.add_action_handler("hello", |switch_info| {
+        println!("Hello Ardeck!");
+    });
 
     plugin.start_listening().await;
 }

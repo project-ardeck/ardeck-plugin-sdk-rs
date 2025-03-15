@@ -124,7 +124,7 @@ impl ArdeckPlugin {
                             );
 
                             let action_id = action.clone().target.action_id;
-                            self.action_handler_emit_all(action_id, action.switch).await;
+                            self.action_handler_emit_all(action_id, action.switch);
                         }
                         _ => {}
                     }
@@ -144,7 +144,7 @@ impl ArdeckPlugin {
     ///     ...
     /// }).await;
     /// ```
-    pub async fn add_action_handler<F: Fn(SwitchInfo) + 'static>(
+    pub fn add_action_handler<F: Fn(SwitchInfo) + 'static>(
         &mut self,
         event_id: &'static str,
         handler: F,
@@ -162,7 +162,7 @@ impl ArdeckPlugin {
     ///     ...
     /// }).await;
     /// ```
-    /*pub*/ async fn add_message_handler<F: Fn(PluginMessage) + 'static>(
+    /*pub*/ fn add_message_handler<F: Fn(PluginMessage) + 'static>(
         &mut self,
         message_id: &'static str,
         handler: F,
@@ -173,7 +173,7 @@ impl ArdeckPlugin {
             .push((message_id, Box::new(handler)));
     }
 
-    async fn action_handler_emit_all(&mut self, event_id: String, data: SwitchInfo) {
+    fn action_handler_emit_all(&mut self, event_id: String, data: SwitchInfo) {
         log::debug!("# event_handler_emit_all[request: {}]", event_id);
         for handler in self.action_handler.iter() {
             log::debug!("\thandler: {}", handler.0);
@@ -183,7 +183,7 @@ impl ArdeckPlugin {
         }
     }
 
-    async fn message_handler_emit_all(&mut self, event_id: String, data: PluginMessage) {
+    fn message_handler_emit_all(&mut self, event_id: String, data: PluginMessage) {
         log::debug!("# message_handler_emit_all[request: {}]", event_id);
         for handler in self.message_handler.iter() {
             log::debug!("\thandler: {}", handler.0);
